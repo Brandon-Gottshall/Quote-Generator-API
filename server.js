@@ -270,6 +270,7 @@
 const express = require('express')
 const pg = require('pg')
 const router = express.Router()
+const cors = require('cors')
 
 // Get environment variables
 require('dotenv').config()
@@ -284,7 +285,9 @@ const pool = new Pool({
 // Express Setup
 const app = express()
 const port = process.env.PORT || 3000
-console.log('port', port)
+// Middleware
+app.use(express.json())
+app.use(cors())
 
 // OpenAI Setup
 const { OpenAIApi, Configuration } = require('openai')
@@ -293,10 +296,6 @@ const config = new Configuration({
   apiKey: process.env.OPEN_AI_API_KEY,
 })
 const client = new OpenAIApi(config)
-
-// We need to add a middleware to express that will allow us to parse JSON from the request body
-// This will allow us to get the quote from the request body
-app.use(express.json())
 
 router.get('/', async (req, res) => {
   // test the database connection

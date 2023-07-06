@@ -171,6 +171,7 @@
 // Stage 4: Connect the API to the database
 const express = require('express')
 const pg = require('pg')
+const router = express.Router()
 
 // Database Setup
 const { Pool } = pg // imports the Pool class from pg
@@ -188,7 +189,7 @@ console.log('port', port)
 // This will allow us to get the quote from the request body
 app.use(express.json())
 
-app.get('/', async (req, res) => {
+router.get('/', async (req, res) => {
   // test the database connection
   try {
     const client = await pool.connect()
@@ -202,27 +203,22 @@ app.get('/', async (req, res) => {
   }
 })
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Example app listening at http://localhost:${port}`)
-})
-
 // Get all favorited quotes
-app.get('/quotes', async (req, res) => {
+router.get('/quotes', async (req, res) => {
   try {
     const client = await pool.connect()
     let quotes = await client.query('SELECT * FROM quotes')
+    client.release()
+    res.send(quotes.rows)
   } catch (err) {
     console.log(err)
     res.status(500).send('Error ' + err)
-  } finally {
-    await client.release()
   }
-  res.send(quotes.rows)
 })
 
 // Generate a new quote
 //  Mock Quote - We will replace this with a real quote when we add OpenAI
-app.get('/quotes/new', async (req, res) => {
+router.get('/quotes/new', async (req, res) => {
   res.send({
     id: 1,
     quote: "I'm Batman",
@@ -231,7 +227,7 @@ app.get('/quotes/new', async (req, res) => {
 
 // Favorite a quote
 // Mock Quote added
-app.post('/quotes/favorite', async (req, res) => {
+router.post('/quotes/favorite', async (req, res) => {
   // Here is where we will add the quote to the database
   let quote = req.body.quote
 
@@ -240,37 +236,34 @@ app.post('/quotes/favorite', async (req, res) => {
     let result = await client.query('INSERT INTO quotes (quote) VALUES ($1)', [
       quote,
     ])
-    // We will use the query method to insert the quote into the database
+    client.release()
+    res.send({ quote })
   } catch (err) {
     console.log(err)
     res.status(500).send('Error ' + err)
-  } finally {
-    await client.release()
   }
-  // We will use the query method to insert the quote into the database
-  // For now we will just return the quote
-  res.send({ quote })
 })
 
 // Remove a quote from favorites
-
-app.delete('/quotes/:id/favorite', async (req, res) => {
+router.delete('/quotes/:id/favorite', async (req, res) => {
   // Here is where we will remove the quote from the database
-  // For now we will just return the quote
   try {
     const client = await pool.connect()
     let result = await client.query('DELETE FROM quotes WHERE id = $1', [
       req.params.id,
     ])
-  } catch {
+    client.release()
+    res.send('Removed: ', {
+      id: req.params.id,
+    })
+  } catch (err) {
     console.log(err)
     res.status(500).send('Error ' + err)
-  } finally {
-    await client.release()
   }
+})
 
-  res.send('Removed: ', {
-    id,
-    quote,
-  })
+app.use('/', router)
+
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Example app listening at http://localhost:${port}`)
 })

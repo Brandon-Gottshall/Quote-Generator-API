@@ -169,16 +169,15 @@
 // INSERT INTO quotes (quote) VALUES ('I am Batman');
 
 // Stage 4: Connect the API to the database
-
 const express = require('express')
 const pg = require('pg')
 
 // Database Setup
-const { Client } = pg // imports the Client class from pg
-const client = new Client({
+const { Pool } = pg // imports the Pool class from pg
+const pool = new Pool({
   connectionString:
     'postgresql://postgres:jGIUrmoBCP8nP4k2xxfx@containers-us-west-167.railway.app:6254/railway',
-}) // instantiates the Client class
+}) // instantiates the Pool class
 
 // Express Setup
 const app = express()
@@ -190,17 +189,16 @@ console.log('port', port)
 app.use(express.json())
 
 app.get('/', async (req, res) => {
-  await client.connect() // establishes connection to the database
   // test the database connection
   try {
+    const client = await pool.connect()
     const result = await client.query('SELECT * FROM quotes')
     const results = { results: result ? result.rows : null }
     res.send(results)
+    client.release()
   } catch (err) {
     console.error(err)
     res.send('Error ' + err)
-  } finally {
-    await client.end()
   }
 })
 
@@ -211,13 +209,13 @@ app.listen(port, '0.0.0.0', () => {
 // Get all favorited quotes
 app.get('/quotes', async (req, res) => {
   try {
-    await client.connect()
+    const client = await pool.connect()
     let quotes = await client.query('SELECT * FROM quotes')
   } catch (err) {
     console.log(err)
     res.status(500).send('Error ' + err)
   } finally {
-    await client.end()
+    await client.release()
   }
   res.send(quotes.rows)
 })
@@ -238,7 +236,7 @@ app.post('/quotes/favorite', async (req, res) => {
   let quote = req.body.quote
 
   try {
-    await client.connect()
+    const client = await pool.connect()
     let result = await client.query('INSERT INTO quotes (quote) VALUES ($1)', [
       quote,
     ])
@@ -247,7 +245,7 @@ app.post('/quotes/favorite', async (req, res) => {
     console.log(err)
     res.status(500).send('Error ' + err)
   } finally {
-    await client.end()
+    await client.release()
   }
   // We will use the query method to insert the quote into the database
   // For now we will just return the quote
@@ -260,7 +258,7 @@ app.delete('/quotes/:id/favorite', async (req, res) => {
   // Here is where we will remove the quote from the database
   // For now we will just return the quote
   try {
-    await client.connect()
+    const client = await pool.connect()
     let result = await client.query('DELETE FROM quotes WHERE id = $1', [
       req.params.id,
     ])
@@ -268,7 +266,7 @@ app.delete('/quotes/:id/favorite', async (req, res) => {
     console.log(err)
     res.status(500).send('Error ' + err)
   } finally {
-    await client.end()
+    await client.release()
   }
 
   res.send('Removed: ', {

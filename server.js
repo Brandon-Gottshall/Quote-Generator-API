@@ -182,7 +182,7 @@ const client = new Client({
 
 // Express Setup
 const app = express()
-const port = process.env.EXPRESS_PORT || 3000
+const port = process.env.PORT || 3000
 console.log('port', port)
 
 // We need to add a middleware to express that will allow us to parse JSON from the request body

@@ -1,12 +1,15 @@
-// Stage 1: Stub out the API
+// // Stage 1: Stub out the API
 // const express = require('express')
+// const router = express.Router()
 
 // const app = express()
 // const port = process.env.PORT || 3333
 
-// app.get('/', async (req, res) => {
+// router.get('/', async (req, res) => {
 //   res.send(`Hello, World!`)
 // })
+
+// app.use('/', router)
 
 // app.listen(port, () => {
 //   console.log(`Example app listening at http://localhost:${port}`)
@@ -14,7 +17,7 @@
 
 // // Get all favorited quotes
 // // Mock favorite quotes
-// app.get('/quotes', async (req, res) => {
+// router.get('/quotes', async (req, res) => {
 //   res.send([
 //     {
 //       id: 1,
@@ -29,7 +32,7 @@
 
 // // Generate a new quote
 // //  Mock Quote
-// app.get('/quotes/new', async (req, res) => {
+// router.get('/quotes/new', async (req, res) => {
 //   res.send({
 //     id: 1,
 //     quote: "I'm Batman",
@@ -38,35 +41,29 @@
 
 // // Favorite a quote
 // // Mock Quote added
-// app.post('/quotes/:id/favorite', async (req, res) => {
+// router.post('/quotes/:id/favorite', async (req, res) => {
 //   // Here is where we will add the quote to the database
 //   // For now we will just return the quote
-//   let id = req.params.id
-//   let quote = req.body.quote
-
 //   res.send({
-//     id,
-//     quote,
+//     id: req.params.id,
+//     quote: req.body.quote,
 //   })
 // })
 
 // // Remove a quote from favorites
-
-// app.delete('/quotes/:id/favorite', async (req, res) => {
+// router.delete('/quotes/:id/favorite', async (req, res) => {
 //   // Here is where we will remove the quote from the database
 //   // For now we will just return the quote
-//   let id = req.params.id
-//   let quote = req.body.quote
-
 //   res.send({
-//     id,
-//     quote,
+//     id: req.params.id,
+//     quote: req.body.quote,
 //   })
 // })
 
-// // Stage 2: Connect to the database
+// Stage 2: Setup the database
 // const express = require('express')
 // const pg = require('pg')
+// const router = express.Router()
 
 // // Database Setup
 // const { Client } = pg // imports the Client class from pg
@@ -84,7 +81,7 @@
 // // This will allow us to get the quote from the request body
 // app.use(express.json())
 
-// app.get('/', async (req, res) => {
+// router.get('/', async (req, res) => {
 //   await client.connect() // establishes connection to the database
 //   // test the database connection
 //   try {
@@ -99,13 +96,15 @@
 //   }
 // })
 
+// app.use('/', router)
+
 // app.listen(port, () => {
 //   console.log(`Example app listening at http://localhost:${port}`)
 // })
 
 // // Get all favorited quotes
 // // Mock favorite quotes
-// app.get('/quotes', async (req, res) => {
+// router.get('/quotes', async (req, res) => {
 //   res.send([
 //     {
 //       id: 1,
@@ -119,8 +118,8 @@
 // })
 
 // // Generate a new quote
-// //  Mock Quote
-// app.get('/quotes/new', async (req, res) => {
+// // //  Mock Quote
+// router.get('/quotes/new', async (req, res) => {
 //   res.send({
 //     id: 1,
 //     quote: "I'm Batman",
@@ -129,7 +128,7 @@
 
 // // Favorite a quote
 // // Mock Quote added
-// app.post('/quotes/:id/favorite', async (req, res) => {
+// router.post('/quotes/:id/favorite', async (req, res) => {
 //   // Here is where we will add the quote to the database
 //   // For now we will just return the quote
 //   let id = req.params.id
@@ -142,8 +141,7 @@
 // })
 
 // // Remove a quote from favorites
-
-// app.delete('/quotes/:id/favorite', async (req, res) => {
+// router.delete('/quotes/:id/favorite', async (req, res) => {
 //   // Here is where we will remove the quote from the database
 //   // For now we will just return the quote
 //   let id = req.params.id

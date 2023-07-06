@@ -30,3 +30,5 @@ yarn-error.log*
 dist/
 .env
 yarn.lock
+
+pnpm-lock.yaml
